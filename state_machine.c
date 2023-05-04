@@ -2,34 +2,34 @@
 
 unsigned char traffic_lights[8];
 unsigned char road_density[4];
-unsigned bool ambulance_exist[4];
+bool ambulance_exist[4];
 unsigned char vertical_round, horizontal_round;
 int GREEN_DUARATION = 30;
 
 typedef enum {
     GREEN,
-	YELLOW,
-	GREEN,
+    YELLOW,
+    RED,
     MAX_SIGNAL,
 } Signal;
 
 typedef enum {
-    SN, 
-    NS, 
-    EW, 
-    WE,
+    ROAD_SN, 
+    ROAD_NS, 
+    ROAD_EW, 
+    ROAD_WE,
     MAX_ROAD,
 } Road;
 
 typedef enum {
-    SN,
-	SW,
-    NS,
-	NE,
-	EW,
-	ES,
-	WE,
-	WN,
+    LIGHTS_SN,
+    LIGHTS_SW,
+    LIGHTS_NS,
+    LIGHTS_NE,
+    LIGHTS_EW,
+    LIGHTS_ES,
+    LIGHTS_WE,
+    LIGHTS_WN,
     MAX_LIGHTS,
 } Traffic_lights;
 
