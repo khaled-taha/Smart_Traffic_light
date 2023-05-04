@@ -2,8 +2,6 @@
 #include <TimerOne.h>
 #include <pt.h>
 
-struct pt asynchUpdateStatus;
-
 #include "pin_mapping.h"
 #include "app_config.h"
 #include "sr_interface.h"
@@ -12,18 +10,14 @@ struct pt asynchUpdateStatus;
 
 static uint8_t seconds = 0;
 
+struct pt asynchUpdateStatus;
+struct pt asynchUpdateSR;
+struct pt asynchUpdateDensity;
+
 void sys_tick (void)
 {
-  static uint8_t joins = 0;
-  joins += 1;
-  SR_updateTask();
   TRFC_vUpdateStatus();
-  
-  if (joins == 4){
-    Serial.println("SEC:"+String(seconds));
-    seconds += 1;
-    joins = 0;
-  }
+  seconds += 1;
 }
 
 void setup() 
@@ -35,7 +29,7 @@ void setup()
   TRFC_vInit();
   SR_init();
   
-  Timer1.initialize(250000);
+  Timer1.initialize(1000000);
   Timer1.attachInterrupt(sys_tick);
 
   TRFC_vUpdate(0, MODE_STOP);
@@ -46,7 +40,7 @@ void setup()
 
 void loop() 
 {
-  Serial.println("Supre Loop");
-  TRFC_vUpdateEmergencyStatus(&asynchUpdateStatus);
-  delay(1500);
+  SR_updateTask(&asynchUpdateSR, 500);
+  TRFC_vUpdateEmergencyStatus(&asynchUpdateStatus, 1000);
+  TRFC_vScan(&asynchUpdateDensity, 100);
 }

@@ -6,6 +6,8 @@ extern TrafficUnit traffic_unit[4] ;
 void TRFC_vInit(void)
 {
   PT_INIT(&asynchUpdateStatus);
+  PT_INIT(&asynchUpdateDensity);
+
   uint8_t countingPins[8] = {
     PIN_T1_COUNT_UP, PIN_T1_COUNT_DOWN,
     PIN_T2_COUNT_UP, PIN_T2_COUNT_DOWN,
@@ -13,12 +15,13 @@ void TRFC_vInit(void)
     PIN_T4_COUNT_UP, PIN_T4_COUNT_DOWN
   };
 
+  String UnitName[4] = {NAME_NORTH, NAME_EAST, NAME_SOUTH, NAME_WEST };
+
   for (int i = 0 ; i < 4 ; i++)
   {
-    String UnitName [4] = {NAME_NORTH, NAME_EAST, NAME_SOUTH, NAME_WEST };
     traffic_unit[i].TrafficName = "Traffic Unit "+ UnitName[i];
-    traffic_unit[i].CountUpPin   = countingPins[2*i+0];
-    traffic_unit[i].CountDownPin = countingPins[2*i+1];
+    traffic_unit[i].CountUpPin   = countingPins[(2*i)+0];
+    traffic_unit[i].CountDownPin = countingPins[(2*i)+1];
 
     pinMode(traffic_unit[i].CountUpPin  , INPUT_PULLUP);
     pinMode(traffic_unit[i].CountDownPin, INPUT_PULLUP); 
@@ -54,8 +57,9 @@ void TRFC_vUpdateStatus (void)
   TRFC_vUpdateDensityStatus();
 }
 
-void TRFC_vUpdateEmergencyStatus (struct pt* pt)
-{
+void TRFC_vUpdateEmergencyStatus (struct pt* pt, uint32_t interval)
+{ 
+  static unsigned long timestamp = 0;
   PT_BEGIN(pt);
   while (1){
     while ( Serial.available() != 0 )
@@ -83,7 +87,8 @@ void TRFC_vUpdateEmergencyStatus (struct pt* pt)
         TRFC_vGetCurrentSystemState();
       }
     }
-
+    PT_WAIT_UNTIL(pt, millis() - timestamp > interval);
+    timestamp = millis();
   }  
   PT_END(pt);
 }
@@ -101,7 +106,6 @@ void TRFC_vUpdateDensityStatus (void)
       traffic_unit[i].DensityStatus = DENSITY_OFF;
     }
   }
-
 }
 
 void TRFC_vGetCurrentSystemState (void)
@@ -121,5 +125,81 @@ void TRFC_vGetCurrentSystemState (void)
     Serial.println("Unit Current State: "); 
     Serial.println((currnetMode == PATTERN_STOP)?("RED"):( (currnetMode == PATTERN_WAIT )?("YELLOW"):("GREEN") ));
     Serial.println("---------------------------------");
+  }
+}
+
+void TRFC_vScan (struct pt* pt, uint32_t interval)
+{
+  static unsigned long timestamp = 0;
+  static uint8_t oldUpPinState[4] = {0};
+  static uint8_t oldDownPinState[4] = {0};
+  static uint8_t currentUpPinState[4] = {0};
+  static uint8_t currentDownPinState[4] = {0};
+  
+  PT_BEGIN(pt);
+  while(1)
+  {
+    for (int i = 0 ; i < 4 ; i++)
+    {
+      currentUpPinState[i]   = digitalRead(traffic_unit[i].CountUpPin);
+      currentDownPinState[i] = digitalRead(traffic_unit[i].CountDownPin);
+    }
+    
+    for (int i = 0 ; i < 4 ; i++)
+    {
+      if ((oldUpPinState[i] == HIGH) && (currentUpPinState[i] == LOW)) 
+      {
+        Serial.println("Count Up Unit: "+ traffic_unit[i].TrafficName);
+        TRFC_vCountUp(i);
+        Serial.println(traffic_unit[i].VehicleCounter);
+      }
+      
+
+      if ((oldDownPinState[i] == HIGH) && (currentDownPinState[i] == LOW)) 
+      {
+        Serial.println("Count Down Unit: "+ traffic_unit[i].TrafficName);
+        TRFC_vCountDown(i);
+        Serial.println(traffic_unit[i].VehicleCounter);
+      }
+      
+    }
+
+    for (int i = 0 ; i < 4 ; i++)
+    {
+      oldUpPinState[i] = currentUpPinState[i];
+      oldDownPinState[i] = currentDownPinState[i];
+    }
+    PT_WAIT_UNTIL(pt, millis() - timestamp > interval);
+    timestamp = millis();
+  }
+  PT_END(pt);
+
+}
+
+void TRFC_vCountUp (uint8_t unit)
+{
+  static uint32_t temp = 0;
+  temp = traffic_unit[unit].VehicleCounter;
+  Serial.println("Temp: "+ String(temp));
+
+  if (++temp != 0){
+    traffic_unit[unit].VehicleCounter = temp;
+  }
+  else {
+    Serial.println("Error Count Up");
+  }
+}
+
+void TRFC_vCountDown (uint8_t unit)
+{
+  static uint32_t temp = 0;
+  temp = traffic_unit[unit].VehicleCounter;
+  Serial.println("Temp: "+ String(temp));
+
+  if (traffic_unit[unit].VehicleCounter > 0){
+    traffic_unit[unit].VehicleCounter -= 1;
+  }
+  else {
+    Serial.println("Error Count Down");
   }
 }

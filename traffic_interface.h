@@ -44,7 +44,10 @@ typedef struct TU TrafficUnit;
 void TRFC_vInit                   (void);
 void TRFC_vUpdate                 (uint8_t unit, uint8_t mode);
 void TRFC_vUpdateStatus           (void);
-void TRFC_vUpdateEmergencyStatus  (void);
+void TRFC_vUpdateEmergencyStatus  (struct pt* pt, uint32_t interval);
 void TRFC_vUpdateDensityStatus    (void);
+void TRFC_vScan                   (struct pt* pt, uint32_t interval);
+void TRFC_vCountUp                (uint8_t unit);
+void TRFC_vCountDown              (uint8_t unit);
 
 #endif
