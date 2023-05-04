@@ -4,6 +4,7 @@
 #define SR_DATA   12
 #define SR_CLK    11
 #define SR_LOAD   10
+#define SR_CLR    4
 
 #define PIN_T1_COUNT_UP     14
 #define PIN_T1_COUNT_DOWN   15

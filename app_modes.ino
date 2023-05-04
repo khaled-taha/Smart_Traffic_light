@@ -1,4 +1,5 @@
 #include "app_modes_interface.h"
 #include "traffic_interface.h"
 
-TrafficUnit traffic_unit[4] ;
+RoadTrafficUnit road_traffic_unit[4] ;
+TrafficUnit     turn_traffic_unit[4] ;

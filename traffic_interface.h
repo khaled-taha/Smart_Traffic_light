@@ -1,14 +1,18 @@
 #ifndef TRAFFIC_INTERFACE_H_
 #define TRAFFIC_INTERFACE_H_
 
-#define CHECK_SYSTEM  "-1"
-#define MODE_STOP   0 
-#define MODE_WAIT   1
-#define MODE_PASS   2
+#define ID_NS 0
+#define ID_EW 1
+#define ID_SN 2
+#define ID_WE 3
+#define ID_SW 4
+#define ID_NE 5
+#define ID_ES 6
+#define ID_WN 7
 
-#define PATTERN_STOP 0b001
-#define PATTERN_WAIT 0b010
-#define PATTERN_PASS 0b100
+#define MODE_STOP   1
+#define MODE_WAIT   2
+#define MODE_PASS   3
 
 #define TRAFFIC_STATUS_IDLE       0
 #define TRAFFIC_STATUS_EMERGENCY  1
@@ -28,10 +32,14 @@ union TUP{
 };
 typedef union TUP TrafficUnitPattern;
 
-
 struct TU{
   String TrafficName;
   TrafficUnitPattern mode;
+};
+typedef struct TU TrafficUnit;
+
+struct RTU{
+  TrafficUnit TrafficLights;
   uint8_t EmergencyStatus : 1 ;
   uint8_t DensityStatus : 1 ;
   uint8_t IdleStatus : 1 ;
@@ -39,15 +47,16 @@ struct TU{
   uint8_t CountDownPin: 6;
   uint32_t VehicleCounter;
 };
-typedef struct TU TrafficUnit;
+typedef struct RTU RoadTrafficUnit;
+
 
 void TRFC_vInit                   (void);
 void TRFC_vUpdate                 (uint8_t unit, uint8_t mode);
 void TRFC_vUpdateStatus           (void);
 void TRFC_vUpdateEmergencyStatus  (struct pt* pt, uint32_t interval);
-void TRFC_vUpdateDensityStatus    (void);
 void TRFC_vScan                   (struct pt* pt, uint32_t interval);
-void TRFC_vCountUp                (uint8_t unit);
-void TRFC_vCountDown              (uint8_t unit);
+uint32_t TRFC_u32GetDensity       (uint8_t unit);
+uint8_t TRFC_u8GetMode            (uint8_t unit);
+String TRFC_u8GetName             (uint8_t unit);
 
 #endif
