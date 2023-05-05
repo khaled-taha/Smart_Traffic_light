@@ -1,12 +1,13 @@
+#include <stdio.h>
 // GLOBAL VARS and ENUMS
 
 unsigned char traffic_lights[8];
 unsigned char road_density[4];
 char ambulance_exist[4];
 unsigned char vertical_round, horizontal_round;
-int GREEN_DURATION = 30;
-int YELLOW_DURATION = 5;
-int RED_DURATION = 30;
+int GREEN_DURATION = 5;
+int YELLOW_DURATION = 2;
+int RED_DURATION = 5;
 int roundi = 1;
 int roundx = 1;
 
@@ -52,7 +53,6 @@ typedef enum
     MAX_STATE,
 } State;
 
-
 // PROTOTYPES
 void handle_state_machine(State *current_state);
 void handle_STOP_ALL(void);
@@ -78,7 +78,14 @@ void handle_state_machine(State *current_state)
         // handle NS_SN state
         handle_NS_SN();
         // transition to next state
-        *current_state = STATE_NS_NE;
+        if (roundi == 1)
+        {
+            *current_state = STATE_NS_NE;
+        }
+        else
+        {
+            *current_state = STATE_SN_SW;
+        }
         break;
     case STATE_NS_NE:
         // handle NS_NE state
@@ -90,7 +97,14 @@ void handle_state_machine(State *current_state)
         // handle EW_WE state
         handle_EW_WE();
         // transition to next state
-        *current_state = STATE_EW_ES;
+        if (roundx == 1)
+        {
+            *current_state = STATE_EW_ES;
+        }
+        else
+        {
+            *current_state = STATE_WE_WN;
+        }
         break;
     case STATE_EW_ES:
         // handle EW_ES state
@@ -133,158 +147,162 @@ void handle_STOP_ALL(void)
 
 void handle_NS_SN(void)
 {
-    if (roundi % 2 == 1)
-    {
-        nextState = STATE_NS_NE;
-    }
-    else
-    {
-        nextState = STATE_SN_SW;
-    }
+    printf("NS_SN\n");
+    // if (roundi % 2 == 1)
+    // {
+    //     nextState = STATE_NS_NE;
+    // }
+    // else
+    // {
+    //     nextState = STATE_SN_SW;
+    // }
     // update traffic light states
+    
     // GREEN
     traffic_lights[LIGHTS_SN] = GREEN;
     traffic_lights[LIGHTS_NS] = GREEN;
-
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(GREEN_DURATION); // -> delay | state
+    check_ambulance_or_density(GREEN_DURATION); // -> delay | state
     // Yellow
     traffic_lights[LIGHTS_SN] = YELLOW;
     traffic_lights[LIGHTS_NS] = YELLOW;
-
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
+    check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
     // Red
     traffic_lights[LIGHTS_SN] = RED;
     traffic_lights[LIGHTS_NS] = RED;
-
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(RED_DURATION);
+    check_ambulance_or_density(RED_DURATION);
 }
 
 void handle_NS_NE(void)
 {
-    roundx = 2;
+    printf("NS_NE\n");
+    roundi = 2;
+    // nextState = STATE_EW_WE;
     // update traffic light states
-    nextState = STATE_EW_WE;
     // GREEN
     traffic_lights[LIGHTS_NS] = GREEN;
     traffic_lights[LIGHTS_NE] = GREEN;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(GREEN_DURATION); // -> delay | state
+    check_ambulance_or_density(GREEN_DURATION); // -> delay | state
     // Yellow
     traffic_lights[LIGHTS_NS] = YELLOW;
     traffic_lights[LIGHTS_NE] = YELLOW;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
+    check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
     // Red
     traffic_lights[LIGHTS_NS] = RED;
     traffic_lights[LIGHTS_NE] = RED;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(RED_DURATION); // -> delay | state
+    check_ambulance_or_density(RED_DURATION); // -> delay | state
 }
 
 void handle_SN_SW(void)
 {
+    printf("SN_SW\n");
     roundi = 1;
-        // update traffic light states
-    nextState = STATE_NS_SN;
+    // nextState = STATE_NS_SN;
+    // update traffic light states
     // GREEN
     traffic_lights[LIGHTS_SN] = GREEN;
     traffic_lights[LIGHTS_SW] = GREEN;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(GREEN_DURATION); // -> delay | state
+    check_ambulance_or_density(GREEN_DURATION); // -> delay | state
     // Yellow
     traffic_lights[LIGHTS_SN] = YELLOW;
     traffic_lights[LIGHTS_SW] = YELLOW;
+
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
+    check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
     // Red
     traffic_lights[LIGHTS_SN] = RED;
     traffic_lights[LIGHTS_SW] = RED;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(RED_DURATION); // -> delay | state
+    check_ambulance_or_density(RED_DURATION); // -> delay | state
 }
 
 void handle_EW_WE(void)
 {
-    if (roundx % 2 == 1)
-    {
-        nextState = STATE_EW_ES;
-    }
-    else
-    {
-        nextState = STATE_WE_WN;
-    }
+    printf("EW_WE\n");
+    // if (roundx % 2 == 1)
+    // {
+    //     nextState = STATE_EW_ES;
+    // }
+    // else
+    // {
+    //     nextState = STATE_WE_WN;
+    // }
     // update traffic light states
     // GREEN
     traffic_lights[LIGHTS_EW] = GREEN;
     traffic_lights[LIGHTS_WE] = GREEN;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(GREEN_DURATION); // -> delay | state
+    check_ambulance_or_density(GREEN_DURATION); // -> delay | state
     // Yellow
     traffic_lights[LIGHTS_EW] = YELLOW;
     traffic_lights[LIGHTS_WE] = YELLOW;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
+    check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
     // Red
     traffic_lights[LIGHTS_EW] = RED;
     traffic_lights[LIGHTS_WE] = RED;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(RED_DURATION); // -> delay | state
-
-    // printf(nextState);
+    check_ambulance_or_density(RED_DURATION); // -> delay | state
 }
 
 void handle_EW_ES(void)
 {
+    printf("EW_ES\n");
     roundx = 2;
+    // nextState = STATE_NS_SN;
     // update traffic light states
-    nextState = STATE_NS_SN;
     // GREEN
     traffic_lights[LIGHTS_EW] = GREEN;
     traffic_lights[LIGHTS_ES] = GREEN;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(GREEN_DURATION); // -> delay | state
+    check_ambulance_or_density(GREEN_DURATION); // -> delay | state
     // Yellow
     traffic_lights[LIGHTS_EW] = YELLOW;
     traffic_lights[LIGHTS_ES] = YELLOW;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
+    check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
     // Red
     traffic_lights[LIGHTS_EW] = RED;
     traffic_lights[LIGHTS_ES] = RED;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(RED_DURATION); // -> delay | state
+    check_ambulance_or_density(RED_DURATION); // -> delay | state
 }
 
 void handle_WE_WN(void)
 {
-    State nextState;
+    printf("WE_WN\n");
     roundx = 1;
+    // nextState = STATE_NS_SN;
     // update traffic light states
-    nextState = STATE_NS_SN;
     // GREEN
     traffic_lights[LIGHTS_WE] = GREEN;
     traffic_lights[LIGHTS_WN] = GREEN;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(GREEN_DURATION); // -> delay | state
+    check_ambulance_or_density(GREEN_DURATION); // -> delay | state
     // Yellow
     traffic_lights[LIGHTS_WE] = YELLOW;
     traffic_lights[LIGHTS_WN] = YELLOW;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
+    check_ambulance_or_density(YELLOW_DURATION); // -> delay | state
     // Red
     traffic_lights[LIGHTS_WE] = RED;
     traffic_lights[LIGHTS_WN] = RED;
     // handle ambulance presence and road density
-    nextState = check_ambulance_or_density(RED_DURATION); // -> delay | state
+    check_ambulance_or_density(RED_DURATION); // -> delay | state
 }
 
-State check_ambulance_or_density(int duration)
+void check_ambulance_or_density(int duration)
 {
-    delay(duration);
-    return STATE_STOP_ALL;
+    for(int i = duration; i >=0; i--){
+        printf("%d\n",i);
+        sleep(1);
+    }
 }
 
 int main()
