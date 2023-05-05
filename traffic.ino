@@ -3,6 +3,7 @@
 
 extern RoadTrafficUnit road_traffic_unit[4] ;
 extern TrafficUnit     turn_traffic_unit[4] ;
+static uint8_t TUModes[8] = {MODE_INIT, MODE_INIT, MODE_INIT, MODE_INIT, MODE_INIT, MODE_INIT, MODE_INIT, MODE_INIT};
 
 void TRFC_vInit(void)
 {
@@ -52,6 +53,7 @@ void TRFC_vUpdate (uint8_t unit, uint8_t mode)
       case MODE_STOP    : 
       {
         Serial.print("STOP: ");  
+        TUModes[unit] = PATTERN_STOP;
         if (unit <= ID_WE)
         {road_traffic_unit[unit].TrafficLights.mode.pattern = PATTERN_STOP; } 
         else if (unit <= ID_WN)
@@ -61,7 +63,8 @@ void TRFC_vUpdate (uint8_t unit, uint8_t mode)
 
       case MODE_WAIT    : 
       {
-        Serial.print("WAIT: ");  
+        Serial.print("WAIT: ");
+        TUModes[unit] = PATTERN_WAIT;
         if (unit <= ID_WE)
           {road_traffic_unit[unit].TrafficLights.mode.pattern = PATTERN_WAIT;  }
         else if (unit <= ID_WN)
@@ -71,7 +74,8 @@ void TRFC_vUpdate (uint8_t unit, uint8_t mode)
       
       case MODE_PASS    : 
       {
-        Serial.print("PASS: ");  
+        Serial.print("PASS: ");
+        TUModes[unit] = PATTERN_PASS;  
         if (unit <= ID_WE)
           {road_traffic_unit[unit].TrafficLights.mode.pattern = PATTERN_PASS;  }
         else if (unit <= ID_WN)
@@ -81,7 +85,8 @@ void TRFC_vUpdate (uint8_t unit, uint8_t mode)
 
       case MODE_INIT    :
       {
-        Serial.print("INIT: ");  
+        Serial.print("INIT: ");
+        TUModes[unit] = PATTERN_INIT;    
         if (unit <= ID_WE)
           {road_traffic_unit[unit].TrafficLights.mode.pattern = PATTERN_INIT;  }
         else if (unit <= ID_WN)
@@ -89,8 +94,7 @@ void TRFC_vUpdate (uint8_t unit, uint8_t mode)
       }
       break; 
     }     
-    Serial.println(TRFC_u8GetMode(unit));
-
+    Serial.println(TUModes[unit]);
   }
   else 
   {
@@ -176,15 +180,18 @@ uint8_t TRFC_u32GetDensity (uint8_t unit, uint32_t * density)
 uint8_t TRFC_u8GetMode(uint8_t unit)
 {
   uint8_t mode = 0;
+  uint8_t modeStruct = 0;
   
   if (unit <= ID_WN)
   {
+
     if (unit <= ID_WE)
-    {mode = road_traffic_unit[unit].TrafficLights.mode.pattern;}
+    {modeStruct = road_traffic_unit[unit].TrafficLights.mode.pattern;}
     else if  (unit <= ID_WN)
-    {mode = turn_traffic_unit[unit].mode.pattern;}
+    {modeStruct = turn_traffic_unit[unit].mode.pattern;}
+    mode = TUModes[unit];
   }
-  return mode;
+  return modeStruct;
 }
 
 String TRFC_u8GetName(uint8_t unit)
