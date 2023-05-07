@@ -8,8 +8,8 @@ unsigned char vertical_round, horizontal_round;
 int GREEN_DURATION = 5;
 int YELLOW_DURATION = 2;
 int RED_DURATION = 5;
-int roundi = 1;
-int roundx = 1;
+int horizontal_round = 1;
+int vertical_round = 1;
 
 typedef enum
 {
@@ -39,7 +39,7 @@ typedef enum
     LIGHTS_WE,
     LIGHTS_WN,
     MAX_LIGHTS,
-} Traffic_lights;
+} Traffic_light;
 
 typedef enum
 {
@@ -62,6 +62,7 @@ void handle_SN_SW(void);
 void handle_EW_WE(void);
 void handle_EW_ES(void);
 void handle_WE_WN(void);
+void turn_trafficLight(Traffic_lights traffic_light, Signal signal);
 
 // Define the state machine handler function
 void handle_state_machine(State *current_state)
@@ -71,58 +72,30 @@ void handle_state_machine(State *current_state)
     case STATE_STOP_ALL:
         // handle stop state
         handle_STOP_ALL();
-        // transition to next state
-        *current_state = STATE_NS_SN;
         break;
     case STATE_NS_SN:
         // handle NS_SN state
         handle_NS_SN();
-        // transition to next state
-        if (roundi == 1)
-        {
-            *current_state = STATE_NS_NE;
-        }
-        else
-        {
-            *current_state = STATE_SN_SW;
-        }
         break;
     case STATE_NS_NE:
         // handle NS_NE state
         handle_NS_NE();
-        // transition to next state
-        *current_state = STATE_EW_WE;
         break;
     case STATE_EW_WE:
         // handle EW_WE state
         handle_EW_WE();
-        // transition to next state
-        if (roundx == 1)
-        {
-            *current_state = STATE_EW_ES;
-        }
-        else
-        {
-            *current_state = STATE_WE_WN;
-        }
         break;
     case STATE_EW_ES:
         // handle EW_ES state
         handle_EW_ES();
-        // transition to next state
-        *current_state = STATE_NS_SN;
         break;
     case STATE_SN_SW:
         // handle SN_SW state
         handle_SN_SW();
-        // transition to next state
-        *current_state = STATE_EW_WE;
         break;
     case STATE_WE_WN:
         // handle WE_WN state
         handle_WE_WN();
-        // transition to next state
-        *current_state = STATE_NS_SN;
         break;
     default:
         // handle error
@@ -135,7 +108,7 @@ State nextState;
 void handle_STOP_ALL(void)
 {
     // update traffic light states
-    traffic_lights[LIGHTS_SN] = RED;
+    traffic_lights[LIGHTS_SN] = RED; turn_trafficLight(LIGHTS_SN, RED);
     traffic_lights[LIGHTS_SW] = RED;
     traffic_lights[LIGHTS_NS] = RED;
     traffic_lights[LIGHTS_NE] = RED;
@@ -148,6 +121,14 @@ void handle_STOP_ALL(void)
 void handle_NS_SN(void)
 {
     printf("NS_SN\n");
+    if (roundi == 1)
+        {
+            *current_state = STATE_NS_NE;
+        }
+        else
+        {
+            *current_state = STATE_SN_SW;
+        }
     // if (roundi % 2 == 1)
     // {
     //     nextState = STATE_NS_NE;
@@ -303,6 +284,13 @@ void check_ambulance_or_density(int duration)
         printf("%d\n",i);
         sleep(1);
     }
+}
+
+void turn_trafficLight(Traffic_lights traffic_light, Signal signal)
+{
+    // UPDATE ARRAY
+    traffic_lights[traffic_light] = signal;
+    // SIGNAL LOWRE INTERFACE
 }
 
 int main()
