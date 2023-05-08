@@ -1,9 +1,9 @@
 #include <stdio.h>
 
 // Defines
-#define NORMAL_STATE_GREEN_DURATION 30
-#define SUB_STATE_GREEN_DURATION 10
-#define YELLOW_DURATION 5
+#define NORMAL_STATE_GREEN_DURATION 5
+#define SUB_STATE_GREEN_DURATION 3
+#define YELLOW_DURATION 2
 
 // GLOBAL VARS and ENUMS
 
@@ -45,12 +45,12 @@ typedef enum
 typedef enum
 {
     STATE_STOP_ALL,
-    STATE_NS_SN,
-    STATE_NS_NE,
-    STATE_EW_WE,
-    STATE_EW_ES,
-    STATE_SN_SW,
-    STATE_WE_WN,
+    STATE_NS_SN, //2,0
+    STATE_NS_NE, //2,3
+    STATE_EW_WE, //4,6
+    STATE_EW_ES, //4,5
+    STATE_SN_SW, //0,1
+    STATE_WE_WN, //6,7
     MAX_STATE,
 } State;
 

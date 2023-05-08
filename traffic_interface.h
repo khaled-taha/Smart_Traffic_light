@@ -1,3 +1,5 @@
+#include <traffic.ino>
+
 #ifndef TRAFFIC_INTERFACE_H_
 #define TRAFFIC_INTERFACE_H_
 

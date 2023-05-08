@@ -1,9 +1,12 @@
+#include "state_machine.h"
+
 void handle_state_machine(State *state)
 {
     switch (*state)
     {
     case STATE_STOP_ALL:
         handle_STOP_ALL();
+        next_state = STATE_NS_SN;
         break;
     case STATE_NS_SN: // Vertical case
         next_state = (vertical_round == 1) ? STATE_NS_NE : STATE_SN_SW;
@@ -31,7 +34,7 @@ void handle_state_machine(State *state)
     case STATE_WE_WN: // Sub 2
         horizontal_round = 1;
         next_state = STATE_NS_SN;
-        handle_state(traffic_light_WE, traffic_light_WN);
+        handle_state(traffic_light_WE, traffic_light_WN, SUB_STATE_GREEN_DURATION);
         break;
     default:
         // handle error
@@ -53,15 +56,15 @@ void handle_STOP_ALL(void) // INITILIZATION
     turn_traffic_light(traffic_light_SN, signal_RED);
 }
 
-void handle_state(Traffic_light traffic_light_1, traffic_light_2, int green_duration)
+void handle_state(Traffic_light traffic_light_1, Traffic_light traffic_light_2, int green_duration)
 {
-    printf("Currently handling\n");
+    printf("Currently handling %d %d\n", traffic_light_1, traffic_light_2);
 
     // GREEN
     turn_traffic_light(traffic_light_1, signal_GREEN);
     turn_traffic_light(traffic_light_2, signal_GREEN);
 
-    check_ambulance_or_density(green_duartion);
+    check_ambulance_or_density(green_duration);
 
     // Yellow
     turn_traffic_light(traffic_light_1, signal_YELLOW);
@@ -74,7 +77,7 @@ void handle_state(Traffic_light traffic_light_1, traffic_light_2, int green_dura
     turn_traffic_light(traffic_light_2, signal_YELLOW);
 }
 
-void turn_traffic_light(Traffic_lights traffic_light, Signal signal)
+void turn_traffic_light(Traffic_light traffic_light, Signal signal)
 {
     // UPDATE ARRAY
     traffic_lights[traffic_light] = signal;
@@ -83,7 +86,7 @@ void turn_traffic_light(Traffic_lights traffic_light, Signal signal)
 
 void check_ambulance_or_density(int duration)
 {
-    delay(duartion);
+    delay(duration);
 }
 
 void delay(int duration)

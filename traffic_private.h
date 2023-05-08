@@ -1,3 +1,4 @@
+#include <traffic.ino>
 #ifndef TRAFFIC_PRIVATE_H_
 #define TRAFFIC_PRIVATE_H_
 
