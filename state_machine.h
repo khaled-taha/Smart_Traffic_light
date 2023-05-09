@@ -1,16 +1,14 @@
 #include <stdio.h>
+#include "traffic_interface.h"
 
 // Defines
-#define NORMAL_STATE_GREEN_DURATION 5
-#define SUB_STATE_GREEN_DURATION 3
+#define NORMAL_STATE_GREEN_DURATION 6 // MUST NOT BE LESS THAN 3
+#define SUB_STATE_GREEN_DURATION 3 // MUST NOT BE LESS THAN 3
 #define YELLOW_DURATION 2
+#define DENSITY_THRESHOLD 5
+#define NO_NEXT_TEMP -1
 
 // GLOBAL VARS and ENUMS
-
-static unsigned char traffic_lights[8];
-static unsigned char road_density[4];
-static char ambulance_exist[4];
-static unsigned char vertical_round, horizontal_round;
 
 typedef enum
 {
@@ -54,8 +52,12 @@ typedef enum
     MAX_STATE,
 } State;
 
-
+static unsigned char traffic_lights[8];
+static unsigned char road_density[4];
+static char ambulance_exist[4];
+static unsigned char vertical_round, horizontal_round;
 static State *current_state, *next_state;
+static int *next_temp_state = -1;
 
 // PROTOTYPES
 void handle_state_machine(State *state);
@@ -64,3 +66,5 @@ void handle_state(Traffic_light traffic_light_1, Traffic_light traffic_light_2, 
 void turn_traffic_light(Traffic_light traffic_light, Signal signal);
 void delay(int duartion);
 void check_ambulance_or_density(int duartion);
+void check_ambulance(void);
+void check_density(void);

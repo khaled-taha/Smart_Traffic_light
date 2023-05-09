@@ -1,0 +1,113 @@
+[33mcommit 345d1ef2832711430a37da90ca80f670bbb1a6cb[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/Application[m[33m, [m[1;32mApplication[m[33m)[m
+Author: Kyouma_AMR <amralawaad99@gmail.com>
+Date:   Mon May 8 19:19:17 2023 +0300
+
+    complier errors fixed
+
+[33mcommit 6f999f35fe66de61e848f36c053754e16053573a[m
+Author: Mohamed Magdy <14momagdi@gmail.com>
+Date:   Mon May 8 17:38:11 2023 +0300
+
+    Refactor state machine
+    
+    - created state_machine.h
+    - moved includes, constants, enums, prototypes from state_machine.c to .h file
+    - deeply refactored handle_states functions and they were combined into handle_state()
+    - created delay function
+
+[33mcommit 4b0909eb9fb4d87be3fed4335d93d5e6c2079ac8[m
+Merge: fad15f8 fb200eb
+Author: Mohamed Magdy <14momagdi@gmail.com>
+Date:   Sun May 7 19:36:12 2023 +0300
+
+    Merge branch 'Application' of https://github.com/khaled-taha/Smart_Traffic_light into Application
+
+[33mcommit fb200eb7633827a189888755662fa201bbd1858d[m
+Author: Mohamed Magdy <14momagdi@gmail.com>
+Date:   Sun May 7 14:27:20 2023 +0300
+
+    Modify state_machine
+
+[33mcommit eaf05968a8dad0ef1aacac5453ba48846b059d8b[m
+Author: Kyouma_AMR <amralawaad99@gmail.com>
+Date:   Fri May 5 17:42:21 2023 +0300
+
+    update1.2
+
+[33mcommit 64a30a36e9efa2c12e76274d0c07a6cd295e7cf1[m
+Author: Kyouma_AMR <amralawaad99@gmail.com>
+Date:   Fri May 5 17:40:22 2023 +0300
+
+    update1.2
+
+[33mcommit a61aed0a9083f7b59866dec703f0c61055382a6a[m
+Author: Kyouma_AMR <amralawaad99@gmail.com>
+Date:   Fri May 5 15:36:44 2023 +0300
+
+    update1.1
+
+[33mcommit 41e561829420608ac8ae5f79f77dc735a28aa5de[m
+Author: Kyouma_AMR <amralawaad99@gmail.com>
+Date:   Fri May 5 15:13:22 2023 +0300
+
+    update
+
+[33mcommit fad15f8e74c740eb600635a41f372b469be30c2c[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Ayman Saleh <ayman.saleh.zien@gmail.com>
+Date:   Fri May 5 05:01:21 2023 +0300
+
+    Simulation file
+
+[33mcommit 3dd7e8c81ebc0def80f53c473394d67807c33c58[m
+Author: Ayman Saleh <ayman.saleh.zien@gmail.com>
+Date:   Fri May 5 05:00:46 2023 +0300
+
+    Simulation file
+
+[33mcommit 33bddb03d175ed35d52c6b98919b05902be4db0c[m
+Author: Ayman Saleh <ayman.saleh.zien@gmail.com>
+Date:   Fri May 5 01:45:41 2023 +0300
+
+    Add to APIs modify Shift register and Traffic module
+
+[33mcommit 6b29794e4ed37b79d7b9f2080e855045960ba3d3[m
+Author: Ayman Saleh <ayman.saleh.zien@gmail.com>
+Date:   Thu May 4 18:05:06 2023 +0300
+
+    Project skeleton
+
+[33mcommit f5002514c35c198f3b54b26c186b873f7a476918[m
+Author: Khaled El-Attar <61011535+khaled-taha@users.noreply.github.com>
+Date:   Thu May 4 10:58:17 2023 +0300
+
+    Update state_machine.c
+
+[33mcommit e4493c03b92a1fc09d9512c5faced9fc145cdaf7[m
+Author: Ayman Saleh <ayman.saleh.zien@gmail.com>
+Date:   Wed May 3 20:04:08 2023 +0300
+
+    Project skeleton
+
+[33mcommit f29133d3f883d68aa346a44bc745aa097992b68f[m
+Author: Mohamed Magdy <14momagdi@gmail.com>
+Date:   Tue May 2 21:32:22 2023 +0300
+
+    Add state machine file
+
+[33mcommit 4833980e6250f52f5a2ab235c7d805aba7959014[m
+Author: Khaled El-Attar <61011535+khaled-taha@users.noreply.github.com>
+Date:   Sun Mar 19 17:06:46 2023 +0200
+
+    Add arduino class
+
+[33mcommit 8da72b60f5482bde655dbfb13c5f1b8e8cc8b237[m
+Author: Khaled El-Attar <61011535+khaled-taha@users.noreply.github.com>
+Date:   Fri Feb 24 17:12:30 2023 +0200
+
+    Update README.md
+
+[33mcommit 9fc14c595aadd33e73cbb850281566d3e7f39c6b[m
+Author: Khaled El-Attar <61011535+khaled-taha@users.noreply.github.com>
+Date:   Fri Feb 24 16:41:51 2023 +0200
+
+    Initial commit
