@@ -1,4 +1,3 @@
-#include <traffic.ino>
 
 #ifndef TRAFFIC_INTERFACE_H_
 #define TRAFFIC_INTERFACE_H_
@@ -12,9 +11,9 @@
 #define ID_ES 6
 #define ID_WN 7
 
-#define MODE_STOP   1
-#define MODE_WAIT   2
-#define MODE_PASS   3
+#define MODE_PASS   0
+#define MODE_WAIT   1
+#define MODE_STOP   2
 
 #define TRAFFIC_STATUS_IDLE       0
 #define TRAFFIC_STATUS_EMERGENCY  1
@@ -57,7 +56,8 @@ void TRFC_vUpdate                 (uint8_t unit, uint8_t mode);
 void TRFC_vUpdateStatus           (void);
 void TRFC_vUpdateEmergencyStatus  (struct pt* pt, uint32_t interval);
 void TRFC_vScan                   (struct pt* pt, uint32_t interval);
-uint32_t TRFC_u32GetDensity       (uint8_t unit);
+bool TRFC_boolGetEmrgncy          (uint8_t unit);
+uint8_t TRFC_u32GetDensity       (uint8_t unit);
 uint8_t TRFC_u8GetMode            (uint8_t unit);
 String TRFC_u8GetName             (uint8_t unit);
 

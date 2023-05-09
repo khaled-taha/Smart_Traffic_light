@@ -1,4 +1,4 @@
-#include <traffic.ino>
+
 #ifndef TRAFFIC_PRIVATE_H_
 #define TRAFFIC_PRIVATE_H_
 
@@ -13,7 +13,7 @@
 #define NAME_ES  "EAST_SOUTH"
 #define NAME_WN  "WEAST_NORTH"
 
-#define MODE_INIT   0
+#define MODE_INIT   3
 
 #define PATTERN_INIT 0b111
 #define PATTERN_STOP 0b001
