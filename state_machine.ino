@@ -1,13 +1,10 @@
 #include "state_machine.h"
 #include "traffic_interface.h"
 
-void FSM_init(void)
-{
-  PT_INIT(&asynchUpdateStateMachine);
-}
+static bool done = true;
 void handle_state_machine(uint8_t state)
 {
-  
+
     switch (state)
     {
     case STATE_STOP_ALL:
@@ -90,8 +87,15 @@ void handle_state(uint8_t traffic_light_1, uint8_t traffic_light_2, int green_du
     // Yellow
     turn_traffic_light(traffic_light_1, signal_YELLOW);
     turn_traffic_light(traffic_light_2, signal_YELLOW);
-
-    state_delay(YELLOW_DURATION);
+    done = false;
+    
+    while (!done)
+    {
+      state_delay(&asynchDelay, YELLOW_DURATION);
+      TRFC_vUpdateStatus(&asynchUpdateStatus, 200);
+      TRFC_vScan(&asynchUpdateDensity, 100);
+       
+    }
     Serial.println("Yellow");
 
     // Red
@@ -101,10 +105,16 @@ void handle_state(uint8_t traffic_light_1, uint8_t traffic_light_2, int green_du
 
 void turn_traffic_light(uint8_t traffic_light, uint8_t signal)
 {
+  if (next_state == STATE_NS_NE && traffic_light == traffic_light_NS && (signal ==  signal_YELLOW  || signal == signal_RED)) return;
+	if (next_state == STATE_SN_SW && traffic_light == traffic_light_SN && (signal ==  signal_YELLOW  || signal == signal_RED)) return;
+	if (next_state == STATE_EW_ES && traffic_light == traffic_light_EW && (signal ==  signal_YELLOW  || signal == signal_RED)) return;
+	if (next_state == STATE_WE_WN && traffic_light == traffic_light_WE && (signal ==  signal_YELLOW  || signal == signal_RED)) return;
+
     // UPDATE ARRAY
     traffic_lights[traffic_light] = signal;
     // SIGNAL LOWRE INTERFACE
     TRFC_vUpdate(traffic_light, signal);
+    SR_updateTask();
 }
 
 void check_ambulance_or_density(int duration)
@@ -112,7 +122,15 @@ void check_ambulance_or_density(int duration)
     int i = 0;
     do {
         Serial.println("Duration Before: "+String(duration));
-        state_delay(duration/3);  // CHECK EVERY duration/3
+        done = false;
+        
+        while (!done)
+        {
+          state_delay(&asynchDelay, duration/3);  // CHECK EVERY duration/3
+          TRFC_vUpdateStatus(&asynchUpdateStatus, 200);
+          TRFC_vScan(&asynchUpdateDensity, 100);
+           
+        }
         Serial.println("Duration After:"+String(duration));
         check_density();
         check_ambulance();
@@ -190,24 +208,31 @@ bool is_high_density_road   (uint8_t road1, uint8_t road2, uint8_t road3, uint8_
           );
 }
 
-void state_delay(volatile int duration)
-{
-    seconds=0;
-    while (duration >= seconds ){
-      
-    }
-}
-
-void runStateMachine  (struct pt* pt, uint32_t interval)
+void state_delay(struct pt* pt, uint32_t interval)
 {
   static unsigned long timestamp = 0ul;
+  
   PT_BEGIN(pt);
-  while (1){
+
+  while (1) {
+    timestamp = millis();
+    PT_WAIT_UNTIL(pt, millis() - timestamp > (interval*100));
+    done = true;
+  }
+  PT_END(pt); 
+}
+
+void runStateMachine  ( struct pt* pt, uint32_t interval )
+{
+  static unsigned long timestamp = 0ul;
+  
+  PT_BEGIN(pt);
+
+  while (1) {
+    timestamp = millis();
     // Run state machine
     handle_state_machine(next_state);
-  
     PT_WAIT_UNTIL(pt, millis() - timestamp > interval);
-    timestamp = millis();  
   }
-  PT_END(pt);
+  PT_END(pt); 
 }

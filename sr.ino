@@ -12,7 +12,6 @@ void SR_init(void)
   pinMode(SR_CLK  ,OUTPUT);
   pinMode(SR_LOAD ,OUTPUT);
   pinMode(SR_CLR  ,OUTPUT);
-  PT_INIT(&asynchUpdateSR);
 }
 
 /*
@@ -20,15 +19,13 @@ MSB                            LSB
  GYR GYR GYR GYR GYR GYR GYR GYR
  777 666 555 444 333 222 111 000
 */
-void SR_updateTask (struct pt* pt, uint32_t interval)
+void SR_updateTask ( void  )
 {
   static uint32_t copy_state = 0ul;
   static unsigned long timestamp = 0ul;
-  PT_BEGIN(pt);
-  while (1)
-  {
+  
     copy_state = 0ul;
-    Serial.println("copy_state: "+String(copy_state));
+    Serial.println("copy_state: " + String(copy_state));
     SR_vReset();
     for (int i = 0 ; i < 8 ; i++)
     {
@@ -45,10 +42,7 @@ void SR_updateTask (struct pt* pt, uint32_t interval)
 
     Serial.println("Update Shift register by: "+ String(copy_state));
   
-    PT_WAIT_UNTIL(pt, millis() - timestamp > interval);
-    timestamp = millis();
-  }
-  PT_END(pt);
+  
 }
 
 static void SR_vShiftOut(uint8_t bitOrder, uint32_t val)

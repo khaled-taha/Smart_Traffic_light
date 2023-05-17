@@ -5,7 +5,9 @@ RoadTrafficUnit road_traffic_unit[4] ;
 TrafficUnit     turn_traffic_unit[4] ;
 
 uint8_t TUModes[8] = {MODE_INIT, MODE_INIT, MODE_INIT, MODE_INIT, MODE_INIT, MODE_INIT, MODE_INIT, MODE_INIT};
+uint8_t TUDens[4] = {0};
 bool TUEStatus[4] = {0};
+
 
 void TRFC_vInit(void)
 {
@@ -15,6 +17,7 @@ void TRFC_vInit(void)
     PIN_T3_COUNT_UP, PIN_T3_COUNT_DOWN,
     PIN_T4_COUNT_UP, PIN_T4_COUNT_DOWN
   };
+  uint8_t emrgPins[4] = {PIN_T1_EMERG, PIN_T2_EMERG,  PIN_T3_EMERG ,  PIN_T4_EMERG};
 
   String UnitName[8] = { NAME_NS, NAME_EW, NAME_SN, NAME_WE, NAME_SW, NAME_NE, NAME_ES, NAME_WN };
 
@@ -29,20 +32,20 @@ void TRFC_vInit(void)
 
     road_traffic_unit[i].CountUpPin   = countingPins[(2*i)+0];
     road_traffic_unit[i].CountDownPin = countingPins[(2*i)+1];
-
+    road_traffic_unit[i].EmergPin = emrgPins[i];
     road_traffic_unit[i].EmergencyStatus = 0;
 
     pinMode(road_traffic_unit[i].CountUpPin  , INPUT_PULLUP);
     pinMode(road_traffic_unit[i].CountDownPin, INPUT_PULLUP); 
+    pinMode(road_traffic_unit[i].EmergPin, INPUT_PULLUP);
 
     Serial.println("Initialized Unit: "+ String(i));
 
     Serial.println("CountUpPin: "  + String(road_traffic_unit[i].CountUpPin  ) );
     Serial.println("CountDownPin: "+ String(road_traffic_unit[i].CountDownPin) );
+    Serial.println("EmergPin: "+ String(road_traffic_unit[i].EmergPin) );
   }
   
-  PT_INIT(&asynchUpdateStatus);
-  PT_INIT(&asynchUpdateDensity);
 }
 
 void TRFC_vUpdate (uint8_t unit, uint8_t mode)
@@ -104,45 +107,52 @@ void TRFC_vUpdate (uint8_t unit, uint8_t mode)
   }
 }
 
-void TRFC_vUpdateStatus (void)
+void TRFC_vUpdateStatus (struct pt* pt, uint32_t interval)
 {
-  TRFC_vUpdateDensityStatus();
+  PT_BEGIN(pt);
+  static unsigned long timestamp = 0;
+  while (1) {
+    timestamp = millis();
+    TRFC_vUpdateDensityStatus();
+    TRFC_vUpdateEmergencyStatus();
+    PT_WAIT_UNTIL(pt, millis() - timestamp > interval);
+  }
+  PT_END(pt);
+  
 }
 
-void TRFC_vUpdateEmergencyStatus (struct pt* pt, uint32_t interval)
+void TRFC_vUpdateEmergencyStatus ( void )
 { 
   static unsigned long timestamp = 0;
-  PT_BEGIN(pt);
-  while (1){
-    while ( Serial.available() != 0 )
+  static uint8_t oldEMPinState[4] = {0};
+  static uint8_t currentEMPinState[4] = {0};
+
+  for (int i = 0 ; i <= ID_WE ; i++)
+  {
+    if (TUEStatus[i] == EMERGENCY_OFF)
     {
-      String readingInput = Serial.readString();
-      readingInput.trim();
-      uint8_t target = readingInput.charAt(0) - '0' ;
-      uint8_t status = readingInput.charAt(1) - '0' ;
-      if (readingInput != CHECK_SYSTEM)
+      currentEMPinState[i]   = digitalRead(road_traffic_unit[i].EmergPin);
+      if ((oldEMPinState[i] == HIGH) && (currentEMPinState[i] == LOW)) 
       {
-        Serial.println("Emergency for: "+readingInput);
-        Serial.println("Target: "+String(target)+"\tStatus: "+String(status));
-        
-        switch (target)
-        {
-          case ID_NS : road_traffic_unit[ ID_NS ].EmergencyStatus = (status)?(EMERGENCY_ON): (EMERGENCY_OFF);  Serial.println("NS.");TUEStatus [ID_NS] = status;  break; 
-          case ID_EW : road_traffic_unit[ ID_EW ].EmergencyStatus = (status)?(EMERGENCY_ON): (EMERGENCY_OFF);  Serial.println("EW.");TUEStatus [ID_EW] = status;  break;
-          case ID_SN : road_traffic_unit[ ID_SN ].EmergencyStatus = (status)?(EMERGENCY_ON): (EMERGENCY_OFF);  Serial.println("SN.");TUEStatus [ID_SN] = status;  break;
-          case ID_WE : road_traffic_unit[ ID_WE ].EmergencyStatus = (status)?(EMERGENCY_ON): (EMERGENCY_OFF);  Serial.println("WE.");TUEStatus [ID_WE] = status;  break;
-          default: Serial.println("Not Valid input "+ readingInput); break;
-        }
+        Serial.println("Enable Emergency @: "+ road_traffic_unit[i].TrafficLights.TrafficName);
+        road_traffic_unit[i].EmergencyStatus = EMERGENCY_ON;
+        TUEStatus[i] = EMERGENCY_ON;
       }
-      else 
+      oldEMPinState[i] = currentEMPinState[i];
+      
+    } 
+    else if (TUEStatus[i] == EMERGENCY_ON)
+    {
+      currentEMPinState[i]  = digitalRead(road_traffic_unit[i].EmergPin);
+      if ((oldEMPinState[i] == HIGH) && (currentEMPinState[i] == LOW)) 
       {
-        TRFC_vGetCurrentSystemState();
+        Serial.println("Disable Emergency @: "+ road_traffic_unit[i].TrafficLights.TrafficName);
+        road_traffic_unit[i].EmergencyStatus = EMERGENCY_OFF;
+        TUEStatus[i] = EMERGENCY_OFF;
       }
-    }
-    PT_WAIT_UNTIL(pt, millis() - timestamp > interval);
-    timestamp = millis();
-  }  
-  PT_END(pt);
+      oldEMPinState[i] = currentEMPinState[i];
+    } 
+  }
 }
 
 void TRFC_vUpdateDensityStatus (void)
@@ -165,7 +175,8 @@ uint8_t TRFC_u32GetDensity (uint8_t unit)
   static uint8_t dens = 0;
   if (unit <= ID_WE)
   {
-   dens = road_traffic_unit[unit].VehicleCounter;
+  //  dens = road_traffic_unit[unit].VehicleCounter;
+   dens = TUDens[unit];
   }
   else 
   {
@@ -184,15 +195,19 @@ uint8_t TRFC_u8GetMode(uint8_t unit)
   {
 
     if (unit <= ID_WE)
-    {modeStruct = road_traffic_unit[unit].TrafficLights.mode.pattern;}
+    {
+      modeStruct = road_traffic_unit[unit].TrafficLights.mode.pattern;
+    }
     else if  (unit <= ID_WN)
-    {modeStruct = turn_traffic_unit[unit].mode.pattern;}
+    {
+      modeStruct = turn_traffic_unit[unit].mode.pattern;
+      }
     mode = TUModes[unit];
   }
-  return modeStruct;
+  return mode;
 }
 
-bool TRFC_boolGetEmrgncy          (uint8_t unit)
+bool TRFC_boolGetEmrgncy (uint8_t unit)
 {
   uint8_t emrg = 0;
   
@@ -202,9 +217,10 @@ bool TRFC_boolGetEmrgncy          (uint8_t unit)
     if (unit <= ID_WE)
     {
       emrg = (uint8_t)(road_traffic_unit[unit].EmergencyStatus);
+      emrg = TUEStatus[unit];
     }
   }
-  return TUEStatus [unit];
+  return emrg;
 }
 
 String TRFC_u8GetName(uint8_t unit)
@@ -248,7 +264,7 @@ static void TRFC_vGetCurrentSystemState (void)
   }
 }
 
-static void TRFC_vScan (struct pt* pt, uint32_t interval)
+static void TRFC_vScan ( struct pt* pt, uint32_t interval )
 {
   static unsigned long timestamp = 0;
   static uint8_t oldUpPinState[4] = {0};
@@ -257,8 +273,10 @@ static void TRFC_vScan (struct pt* pt, uint32_t interval)
   static uint8_t currentDownPinState[4] = {0};
   
   PT_BEGIN(pt);
-  while(1)
-  {
+
+  while (1) {
+    timestamp = millis();
+ 
     for (int i = 0 ; i <= ID_WE ; i++)
     {
       currentUpPinState[i]   = digitalRead(road_traffic_unit[i].CountUpPin);
@@ -271,14 +289,14 @@ static void TRFC_vScan (struct pt* pt, uint32_t interval)
       {
         Serial.println("Count Up Unit: "+ road_traffic_unit[i].TrafficLights.TrafficName);
         TRFC_vCountUp(i);
-        Serial.println(road_traffic_unit[i].VehicleCounter);
+        Serial.println(TUDens[i]);
       }
     
       if ((oldDownPinState[i] == HIGH) && (currentDownPinState[i] == LOW)) 
       {
         Serial.println("Count Down Unit: "+ road_traffic_unit[i].TrafficLights.TrafficName);
         TRFC_vCountDown(i);
-        Serial.println(road_traffic_unit[i].VehicleCounter);
+        Serial.println(TUDens[i]);
       }
     
     }
@@ -287,22 +305,22 @@ static void TRFC_vScan (struct pt* pt, uint32_t interval)
     {
       oldUpPinState[i] = currentUpPinState[i];
       oldDownPinState[i] = currentDownPinState[i];
-    }
-    PT_WAIT_UNTIL(pt, millis() - timestamp > interval);
-    timestamp = millis();
+    } 
+     PT_WAIT_UNTIL(pt, millis() - timestamp > interval);
   }
   PT_END(pt);
-
 }
 
 static void TRFC_vCountUp (uint8_t unit)
 {
   static uint32_t temp = 0;
-  temp = road_traffic_unit[unit].VehicleCounter;
+  // temp = road_traffic_unit[unit].VehicleCounter;
+  temp = TUDens[unit];
   Serial.println("Temp: "+ String(temp));
 
   if (++temp != 0){
-    road_traffic_unit[unit].VehicleCounter = temp;
+    // road_traffic_unit[unit].VehicleCounter = temp;
+    TUDens[unit] = temp;
   }
   else {
     Serial.println("Error Count Up");
@@ -312,11 +330,13 @@ static void TRFC_vCountUp (uint8_t unit)
 static void TRFC_vCountDown (uint8_t unit)
 {
   static uint32_t temp = 0;
-  temp = road_traffic_unit[unit].VehicleCounter;
+  // temp = road_traffic_unit[unit].VehicleCounter;
+  temp = TUDens[unit];
   Serial.println("Temp: "+ String(temp));
 
-  if (road_traffic_unit[unit].VehicleCounter > 0){
-    road_traffic_unit[unit].VehicleCounter -= 1;
+  if (TUDens[unit] > 0){
+    // road_traffic_unit[unit].VehicleCounter -= 1;
+    TUDens[unit] -= 1;
   }
   else {
     Serial.println("Error Count Down");

@@ -46,6 +46,7 @@ struct RTU{
   uint8_t IdleStatus : 1 ;
   uint8_t CountUpPin: 6;
   uint8_t CountDownPin: 6;
+  uint8_t EmergPin: 6;
   uint32_t VehicleCounter;
 };
 typedef struct RTU RoadTrafficUnit;
@@ -53,11 +54,11 @@ typedef struct RTU RoadTrafficUnit;
 
 void TRFC_vInit                   (void);
 void TRFC_vUpdate                 (uint8_t unit, uint8_t mode);
-void TRFC_vUpdateStatus           (void);
-void TRFC_vUpdateEmergencyStatus  (struct pt* pt, uint32_t interval);
-void TRFC_vScan                   (struct pt* pt, uint32_t interval);
+void TRFC_vUpdateStatus           (struct pt* pt, uint32_t interval);
+void TRFC_vUpdateEmergencyStatus  ( void );
+void TRFC_vScan                   ( struct pt* pt, uint32_t interval );
 bool TRFC_boolGetEmrgncy          (uint8_t unit);
-uint8_t TRFC_u32GetDensity       (uint8_t unit);
+uint8_t TRFC_u32GetDensity        (uint8_t unit);
 uint8_t TRFC_u8GetMode            (uint8_t unit);
 String TRFC_u8GetName             (uint8_t unit);
 
