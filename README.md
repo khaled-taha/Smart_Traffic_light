@@ -29,15 +29,15 @@ in Singapore.
 
 2. [ ] Cameras: Some smart traffic lights use cameras to monitor traffic conditions and adjust signal timings accordingly.
 
-       These cameras can be used to count vehicles, detect the presence of pedestrians, or
-       even identify specific vehicles through license plate recognition.
+     These cameras can be used to count vehicles, detect the presence of pedestrians, or
+     even identify specific vehicles through license plate recognition.
 
 3. [ ] Wireless communication: Smart traffic lights often use wireless communication
 technologies such as Wi-Fi or cellular networks to communicate with other traffic lights,
 central control systems, or connected vehicles.
 
-      This allows them to coordinate with other signals and adjust their timings based on
-      real-time traffic conditions.
+     This allows them to coordinate with other signals and adjust their timings based on
+     real-time traffic conditions.
 
 4. [ ] Machine learning: Some smart traffic lights use machine learning algorithms to analyze
 traffic patterns and optimize signal timings.
