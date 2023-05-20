@@ -47,8 +47,8 @@ traffic patterns and optimize signal timings.
 5. [ ] LED lighting: LED lighting is commonly used in smart traffic lights because it is more
        energy-efficient and longer-lasting than traditional incandescent bulbs.
 
-       LED lights can also be programmed to change color and brightness depending on
-       traffic conditions, improving visibility for drivers and pedestrians.
+      LED lights can also be programmed to change color and brightness depending on
+      traffic conditions, improving visibility for drivers and pedestrians.
 
 6. [ ] Power management: Smart traffic lights often use power management technologies to
 reduce energy consumption and extend the life of their components.
