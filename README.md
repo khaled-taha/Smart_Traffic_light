@@ -25,7 +25,7 @@ in Singapore.
 ## Technologies used in smart traffic lights:
 1. [ ] Sensors: Smart traffic lights often use sensors to detect the presence of vehicles or pedestrians at an intersection.
 
-       These sensors can be embedded in the road or mounted above it, and they can use a variety of technologies such as radar, infrared, or magnetic fields to          detect vehicles.
+     These sensors can be embedded in the road or mounted above it, and they can use a variety of technologies such as radar, infrared, or magnetic fields to          detect vehicles.
 
 2. [ ] Cameras: Some smart traffic lights use cameras to monitor traffic conditions and adjust signal timings accordingly.
 
